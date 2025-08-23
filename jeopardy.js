@@ -375,29 +375,3 @@ function handleClickOfActiveClue(event) {
   }
 }
 
-// function questionHandler(event) {
-//   if (activeClueMode !== 0) return; // Ignore if another clue is active
-
-//   const cell = event.target;
-//   if (cell.classList.contains("viewed")) return; // Ignore if already viewed
-
-//   const [_, categoryIdStr, __, clueIdStr] = cell.id.split("-");
-//   const categoryId = parseInt(categoryIdStr);
-//   const clueId = parseInt(clueIdStr);
-
-//   const category = categories.find(c => c.id === categoryId);
-//   const clueIndex = category.clues.findIndex(c => c.id === clueId);
-//   activeClue = category.clues[clueIndex];
-
-//   // Remove clue from category
-//   category.clues.splice(clueIndex, 1);
-//   if (category.clues.length === 0) categories = categories.filter(c => c.id !== categoryId);
-
-//   // Display question in the cell
-//   cell.textContent = activeClue.question;
-//   cell.classList.add("viewed");
-
-//   // Store reference to cell
-//   activeClue.cell = cell;
-//   activeClueMode = 1;
-// }
