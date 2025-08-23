@@ -369,9 +369,11 @@ function handleClickOfActiveClue(event) {
     const noCluesLeft = categories.every(cat => cat.clues.length === 0);
     if (noCluesLeft) {
       isPlayButtonClickable = true;
-      $("#play").text("Restart the Game!");
+      // update the play button to "Restart the Game!" and display game over message
+      const playButton = document.getElementById("play");
+      playButton.innerText = "Restart the Game!";
+      playButton.classList.remove("disabled");
       $("#active-clue").html("Game Over! Click 'Restart the Game!' to play again.");
     }
   }
-}
-
+};
