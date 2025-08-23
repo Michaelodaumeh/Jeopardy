@@ -21,3 +21,22 @@
 {
   text-decoration: line-through;
 }
+
+
+#active-clue {
+  display: block; /* Ensure it's visible */
+  width: 500px; /* Full width or adjust as needed */
+  height: auto; /* Adjust height based on content */
+  padding: 20px; /* Add some padding for better readability */
+  margin: 20px 0; /* Add spacing around the element */
+  background-color: #f9f9f9; /* Light background for contrast */
+  border: 2px solid #333; /* Add a border for emphasis */
+  border-radius: 8px; /* Rounded corners */
+  font-size: 1.5rem; /* Increase font size for readability */
+  text-align: center; /* Center the text */
+  color: #333; /* Text color */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+}
+#active-clue {
+  transition: all 0.3s ease-in-out;
+}

@@ -341,7 +341,8 @@ function handleClickOfClue (event)
 
   // todo mark clue as viewed (you can use the class in style.css), display the question at #active-clue
   // Mark the cell visually as "viewed" (CSS will gray it out)
-  cell.textContent = activeClue.question; // Show the question in the cell
+  document.getElementById("active-clue").textContent = activeClue.question; // Show the question in the cell
+  document.getElementById("active-clue").style.display = "block"; // Ensure the active clue area is visible
   cell.classList.add("viewed");
 
   activeClue.cell = cell; // Store the cell for later use
@@ -350,24 +351,53 @@ function handleClickOfClue (event)
   
 };
 
-function handleClickOfActiveClue (event) {
+
+function handleClickOfActiveClue(event) {
   // todo handle the click of the active clue area
   // If the active clue is empty, do nothing
-  if (!activeClue) return;
-
-  // If we are showing a question, show the answer
+  // If currently showing a question
   if (activeClueMode === 1) {
-    activeClue.cell.textContent = activeClue.answer; // Show the answer in the cell
-    activeClueMode = 2; // Set mode to "showing answer"
-} else if (activeClueMode === 2) {
-    activeClue = null; // Clear the active clue
-    activeClueMode = 0; // Reset
+    activeClueMode = 2; // switch to answer mode
+    $("#active-clue").html(activeClue.answer);
+  }
+  // If currently showing the answer
+  else if (activeClueMode === 2) {
+    activeClueMode = 0; // clear mode
+    $("#active-clue").html("");
 
-    if (categories.length === 0){
-      isPlayButtonClickable = true; // Allow the play button to be clickable again
-      document.getElementById("play").innerText = "Restart Game"; // Change button text back to "Restart Game"
-      document.getElementById("active-clue").textContent = "Game Over! Click 'Restart Game' to play again."; // Show game over message
+    // Check if all categories are empty = game over
+    const noCluesLeft = categories.every(cat => cat.clues.length === 0);
+    if (noCluesLeft) {
+      isPlayButtonClickable = true;
+      $("#play").text("Restart the Game!");
+      $("#active-clue").html("Game Over! Click 'Restart the Game!' to play again.");
     }
   }
-};
+}
 
+// function questionHandler(event) {
+//   if (activeClueMode !== 0) return; // Ignore if another clue is active
+
+//   const cell = event.target;
+//   if (cell.classList.contains("viewed")) return; // Ignore if already viewed
+
+//   const [_, categoryIdStr, __, clueIdStr] = cell.id.split("-");
+//   const categoryId = parseInt(categoryIdStr);
+//   const clueId = parseInt(clueIdStr);
+
+//   const category = categories.find(c => c.id === categoryId);
+//   const clueIndex = category.clues.findIndex(c => c.id === clueId);
+//   activeClue = category.clues[clueIndex];
+
+//   // Remove clue from category
+//   category.clues.splice(clueIndex, 1);
+//   if (category.clues.length === 0) categories = categories.filter(c => c.id !== categoryId);
+
+//   // Display question in the cell
+//   cell.textContent = activeClue.question;
+//   cell.classList.add("viewed");
+
+//   // Store reference to cell
+//   activeClue.cell = cell;
+//   activeClueMode = 1;
+// }
