@@ -12,6 +12,9 @@
   #74119c
 */
 
+* {
+  box-sizing: border-box;
+}
 .disabled
 {
   display: none;
@@ -25,7 +28,7 @@
 
 #active-clue {
   display: block; /* Ensure it's visible */
-  width: 500px; /* Full width or adjust as needed */
+  width: 1100px; /* Full width or adjust as needed */
   height: auto; /* Adjust height based on content */
   padding: 20px; /* Add some padding for better readability */
   margin: 20px 0; /* Add spacing around the element */
@@ -34,9 +37,116 @@
   border-radius: 8px; /* Rounded corners */
   font-size: 1.5rem; /* Increase font size for readability */
   text-align: center; /* Center the text */
-  color: #333; /* Text color */
+  color: #28a200; /* Text color */
+  overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
 }
 #active-clue {
   transition: all 0.3s ease-in-out;
+}
+#active-clue:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+#active-clue:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+#active-clue.clickable {
+  cursor: pointer;
+  background-color: #e0f7fa; /* Change background on hover */
+  border-color: #00796b; /* Change border color on hover */
+}
+body {
+  font-family: Arial, sans-serif;
+  background-color: rgb(246, 115, 246);
+  color: #de1b32;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#game-board {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.category {
+  background-color: #060ce9;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+/* Style the table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Style the table headers */
+table thead th {
+  background-color: #115ff4;
+  color: #ffffff;
+  font-size: 1.2rem;
+  padding: 15px;
+  text-align: center;
+  text-transform: uppercase;
+  border-bottom: 3px solid #060ce9;
+}
+
+/* Style the table rows */
+table tbody tr {
+  border-bottom: 1px solid #ddd;
+  transition: background-color 0.3s ease;
+}
+
+/* Style the table cells */
+table tbody td {
+  text-align: center;
+  padding: 15px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+}
+
+/* Add hover effect for rows */
+table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Add hover effect for cells */
+table tbody td:hover {
+  background-color: #e0f7fa;
+  color: #00796b;
+}
+
+/* Style the viewed cells */
+table tbody td.viewed {
+  background-color: #ddd;
+  color: #999;
+  text-decoration: line-through;
+}
+
+/* Add a border to the table */
+table {
+  border: 2px solid #115ff4;
+}
+
+/* Add spacing around the table */
+table {
+  margin: 20px auto;
 }
