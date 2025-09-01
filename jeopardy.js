@@ -185,7 +185,7 @@ async function getCategoryIds ()
 
   // 4. Loop through the shuffled list and pick categories that have enough clues
     const ids = [];
-    for (cat of shuffled) {
+    for (let cat of shuffled) {
       if (cat.clues_count >= NUMBER_OF_CLUES_PER_CATEGORY) {
       ids.push(cat.id);
     }
@@ -230,17 +230,17 @@ async function getCategoryData (categoryId)
   const selectedClues = validClues.slice(0, NUMBER_OF_CLUES_PER_CATEGORY);
 
   return {
-    id: categoryId,
-    title: data.title,
-    clues: selectedClues.map( (clue, i) => 
-      ({
-      id: clue.id,
-      value: clue.value || (i + 1) * 100, // Assign a value if missing
-      question: clue.question,
-      answer: clue.answer
-
-    }))
+  id: categoryId,
+  title: data.title,
+  clues: selectedClues.map((clue, i) => ({
+    id: clue.id,
+    value: clue.value || (i + 1) * 100, // Assign a value if missing
+    question: clue.question,
+    answer: clue.answer,
+    categoryId: categoryId   // 🔥 add this
+  }))
   };
+
 }
 
 /**
@@ -291,7 +291,7 @@ function fillTable (categories)
       td.textContent = clue.value;
 
       // Attach click event to reveal question/answer later
-      td.addEventListener("click", handleClickOfClue);
+      td.addEventListener("click", () => handleCellClick(clue, td));
 
       tr.appendChild(td);
     }
@@ -310,70 +310,73 @@ function fillTable (categories)
  * - Don't forget to update the `activeClueMode` variable.
  *
  */
-function handleClickOfClue (event)
-  {
-  // todo find and remove the clue from the categories
-  // The clicked <td>
-  const cell = event.target;
 
-  // If a clue/question is already active, ignore the click
-  if (activeClueMode !== 0) return;
-  
-
-  // Extract category ID and clue ID from the cell's ID
-  // ID format: "cat-<categoryId>-clue-<clueId>"
-  const [_, categoryIdStr, __, clueIdStr] = cell.id.split("-");
-
-  // Find the category in the global categories array
-  const categoryId = parseInt(categoryIdStr);
-  const clueId = parseInt(clueIdStr);
-
-  // Find the clue in that category
-  const category = categories.find(c => c.id === categoryId);
-  const clueIndex = category.clues.findIndex(c => c.id === clueId);
-  activeClue = category.clues[clueIndex]; // Store the active clue
-
-  // Remove the clue from the category (so it can’t be reused)
-  category.clues.splice(clueIndex, 1);
-
-  // If category has no more clues, remove it entirely
-  if (category.clues.length === 0) categories = categories.filter(c => c.id !== categoryId);
-
-  // todo mark clue as viewed (you can use the class in style.css), display the question at #active-clue
-  // Mark the cell visually as "viewed" (CSS will gray it out)
-  document.getElementById("active-clue").textContent = activeClue.question; // Show the question in the cell
-  document.getElementById("active-clue").style.display = "block"; // Ensure the active clue area is visible
-  cell.classList.add("viewed");
-
-  activeClue.cell = cell; // Store the cell for later use
-  activeClueMode = 1; // Set mode to "showing question"
-
-  
-};
+// };
+// CSS fade helper (requires #active-clue CSS with transition/opacity)
+function revealWithSuspense(html, suspenseMs = 500) {
+  const $box = $("#active-clue");
+  $box.addClass("is-fading"); // triggers fade & glow
+  setTimeout(() => {
+    $box.html(html);
+    $box[0] && $box[0].offsetWidth; // restart CSS transition
+    $box.removeClass("is-fading"); // remove after transition
+  }, suspenseMs);
+}
 
 
-function handleClickOfActiveClue(event) {
-  // todo handle the click of the active clue area
-  // If the active clue is empty, do nothing
-  // If currently showing a question
-  if (activeClueMode === 1) {
-    activeClueMode = 2; // switch to answer mode
-    $("#active-clue").html(activeClue.answer);
+// Main cell click handler
+function handleCellClick(clue, td) {
+  if (activeClueMode !== 0 || td.classList.contains("viewed")) return;
+
+  td.classList.add("viewed");
+  activeClue = clue;
+  activeClueMode = 1;
+
+  // 🔥 Remove this clue from categories
+  const catIndex = categories.findIndex(c => c.id === clue.categoryId);
+  if (catIndex !== -1) {
+    categories[catIndex].clues = categories[catIndex].clues.filter(c => c.id !== clue.id);
   }
-  // If currently showing the answer
-  else if (activeClueMode === 2) {
-    activeClueMode = 0; // clear mode
-    $("#active-clue").html("");
 
-    // Check if all categories are empty = game over
-    const noCluesLeft = categories.every(cat => cat.clues.length === 0);
-    if (noCluesLeft) {
-      isPlayButtonClickable = true;
-      // update the play button to "Restart the Game!" and display game over message
-      const playButton = document.getElementById("play");
-      playButton.innerText = "Restart the Game!";
-      playButton.classList.remove("disabled");
-      $("#active-clue").html("Game Over! Click 'Restart the Game!' to play again.");
+  // Fade in the question
+  $("#active-clue").hide().html(activeClue.question).fadeIn(20);
+
+  // Countdown before showing answer
+  let countdown = 5;
+  const countdownInterval = setInterval(() => {
+    $("#active-clue").html(`${activeClue.question} <br><small>Answer in ${countdown}...</small>`);
+    countdown--;
+
+    if (countdown < 0) {
+      clearInterval(countdownInterval);
+
+      // Fade out question and fade in answer
+      $("#active-clue").fadeOut(20, () => {
+        $("#active-clue").html(activeClue.answer).fadeIn(20);
+        activeClueMode = 2;
+
+        // Auto-clear answer after 2 seconds
+        setTimeout(() => {
+          $("#active-clue").fadeOut(10, () => {
+            $("#active-clue").html("").fadeIn(10);
+            activeClueMode = 0;
+
+            // 🔥 Game over check (now works because clues are removed)
+            const noCluesLeft = categories.every(c => c.clues.length === 0);
+            if (noCluesLeft) {
+              isPlayButtonClickable = true;
+              const playButton = document.getElementById("play");
+              playButton.innerText = "Restart the Game!";
+              playButton.classList.remove("disabled");
+              $("#active-clue").fadeOut(20, () => {
+                $("#active-clue")
+                  .html("<b>Game Over!</b> Click 'Restart the Game!' to play again.")
+                  .fadeIn(20);
+              });
+            }
+          });
+        }, 2000);
+      });
     }
-  }
-};
+  }, 1000);
+}

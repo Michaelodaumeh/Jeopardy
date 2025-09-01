@@ -25,8 +25,26 @@
   text-decoration: line-through;
 }
 
+#countdown-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 5px;
+  background-color: #007bff;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+#countdown-text {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  font-size: 1rem;
+  color: #333;
+}
 
 #active-clue {
+  position: relative;
   display: block; /* Ensure it's visible */
   width: 1100px; /* Full width or adjust as needed */
   height: auto; /* Adjust height based on content */
@@ -381,3 +399,6 @@ footer a:hover {
   outline: 3px solid #28a200; /* Green outline */
   outline-offset: 2px;
 }
+
+#active-clue { opacity: 1; transition: opacity 200ms ease; }
+#active-clue.is-fading { opacity: 0; }
