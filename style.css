@@ -1,404 +1,164 @@
-/*
-  You don't need to touch this file to complete the assignment!
-  Unless you want to add styles and make it look more beautiful.
-*/
-
-/*
-  Some colors you may find useful:
-  #115ff4
-  #060ce9
-  #28a200
-  #8d2ab5
-  #74119c
-*/
-
-* {
-  box-sizing: border-box;
-}
-.disabled
-{
-  display: none;
-}
-
-.viewed
-{
-  text-decoration: line-through;
-}
-
-#countdown-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 5px;
-  background-color: #007bff;
-  width: 0%;
-  transition: width 0.1s linear;
-}
-
-#countdown-text {
-  position: absolute;
-  top: 5px;
-  right: 10px;
-  font-size: 1rem;
-  color: #333;
-}
-
-#active-clue {
-  position: relative;
-  display: block; /* Ensure it's visible */
-  width: 1100px; /* Full width or adjust as needed */
-  height: auto; /* Adjust height based on content */
-  padding: 20px; /* Add some padding for better readability */
-  margin: 20px 0; /* Add spacing around the element */
-  background-color: #f9f9f9; /* Light background for contrast */
-  border-radius: 12px; /* Rounded corners */
-  border: 2px solid #333; /* Add a border for emphasis */
-  border-radius: 8px; /* Rounded corners */
-  font-size: 1.5rem; /* Increase font size for readability */
-  font-weight: bold; /* Bold text */
-  text-align: center; /* Center the text */
-  color: #28a200; /* Text color */
-  overflow: hidden;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-  transition: all 0.3s ease-in-out; /* Smooth transitions */
-}
-
-#active-clue:hover {
-  transform: scale(1.03);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-#active-clue:active {
-  transform: scale(0.98);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-#active-clue.clickable {
-  cursor: pointer;
-  background-color: #e0f7fa; /* Change background on hover */
-  border: 2px solid #00796b; /* Change border on hover */
-  border-color: #00796b; /* Change border color on hover */
-  box-shadow: 0 0 15px rgba(0, 121, 107, 0.5); /* Add a glow effect */
-}
-
-/* Style the body */
+/* General body */
 body {
-  font-family: 'Roboto', Arial, sans-serif; /* Use a modern font */
-  background: linear-gradient(135deg, #74119c, #115ff4); /* Add a gradient background */
-  color: #ffffff; /* White text for contrast */
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  background: #001f5b; /* deep Jeopardy blue */
+  color: #ffd700; /* gold text */
+  text-align: center;
   margin: 0;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh; /* Ensure the body takes up the full viewport height */
-  text-align: center; /* Center-align text */
+  padding: 0;
 }
 
-/* Add a subtle glow effect to the text */
-body h1 {
-  font-size: 3rem; /* Larger font size for the title */
-  font-weight: bold; /* Bold text */
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 10px rgba(255, 255, 255, 0.5); /* Glow effect */
-  margin-bottom: 20px; /* Add spacing below the title */
-}
-
-/* Add a container for the game content */
-#game-container {
-  background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
-  border: 2px solid rgba(255, 255, 255, 0.2); /* Subtle border */
-  border-radius: 12px; /* Rounded corners */
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow for depth */
-  width: 90%; /* Responsive width */
-  max-width: 1200px; /* Limit the maximum width */
-}
-
-/* Style the game board */
-#game-board {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr); /* 6 equal columns */
-  gap: 15px; /* Add spacing between cells */
-  margin-top: 20px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
-  border: 2px solid rgba(255, 255, 255, 0.2); /* Subtle border */
-  border-radius: 12px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow for depth */
-  width: 100%;
-  max-width: 1200px; /* Limit the maximum width */
-}
-
-/* Style each category header */
-.category {
-  background: linear-gradient(135deg, #115ff4, #060ce9); /* Gradient background */
-  color: #ffffff; /* White text */
-  padding: 15px;
-  text-align: center;
-  font-size: 1.2rem; /* Slightly larger font size */
-  font-weight: bold; /* Bold text */
-  text-transform: uppercase; /* Uppercase text */
-  border-radius: 8px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow for depth */
-  transition: all 0.3s ease-in-out; /* Smooth transitions */
-}
-
-/* Add hover effect for categories */
-.category:hover {
-  background: linear-gradient(135deg, #060ce9, #115ff4); /* Reverse gradient on hover */
-  transform: scale(1.05); /* Slightly enlarge on hover */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhance shadow on hover */
-}
-
-/* Style the clue cells */
-.clue {
-  background-color: #28a200; /* Green background */
-  color: #ffffff; /* White text */
-  font-size: 1.2rem; /* Larger font size */
-  font-weight: bold; /* Bold text */
-  text-align: center;
-  padding: 20px;
-  border-radius: 8px; /* Rounded corners */
-  cursor: pointer; /* Pointer cursor on hover */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
-  transition: all 0.3s ease-in-out; /* Smooth transitions */
-}
-
-/* Add hover effect for clue cells */
-.clue:hover {
-  background-color: #1e8a00; /* Darker green on hover */
-  transform: scale(1.05); /* Slightly enlarge on hover */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhance shadow on hover */
-}
-
-/* Style the viewed clue cells */
-.clue.viewed {
-  background-color: #ddd; /* Gray background */
-  color: #999; /* Gray text */
-  text-decoration: line-through; /* Strike-through text */
-  cursor: not-allowed; /* Not-allowed cursor */
-  box-shadow: none; /* Remove shadow */
-}
-
-/* Style the table */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  background-color: #ffffff;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-/* Style the table headers */
-table thead th {
-  background-color: #115ff4;
-  color: #ffffff;
-  font-size: 1.2rem;
-  padding: 15px;
-  text-align: center;
-  text-transform: uppercase;
-  border-bottom: 3px solid #060ce9;
-}
-
-/* Style the table rows */
-table tbody tr {
-  border-bottom: 1px solid #ddd;
-  transition: background-color 0.3s ease;
-}
-
-/* Style the table cells */
-table tbody td {
-  text-align: center;
-  padding: 15px;
-  font-size: 1rem;
-  font-weight: bold;
-  color: #333;
-  cursor: pointer;
-}
-
-/* Add hover effect for rows */
-table tbody tr:hover {
-  background-color: #f1f1f1;
-}
-
-/* Add hover effect for cells */
-table tbody td:hover {
-  background-color: #e0f7fa;
-  color: #00796b;
-}
-
-/* Style the viewed cells */
-table tbody td.viewed {
-  background-color: #ddd;
-  color: #999;
-  text-decoration: line-through;
-}
-
-/* Add a border to the table */
-table {
-  border: 2px solid #115ff4;
-}
-
-/* Add spacing around the table */
-table {
-  margin: 20px auto;
-}
-
-/* Style the Start/Restart button */
-#play {
-  background-color: #28a200; /* Green background */
-  color: #ffffff; /* White text */
-  font-size: 1.2rem; /* Larger font size */
-  font-weight: bold; /* Bold text */
-  padding: 15px 30px; /* Add padding for a larger button */
-  border: none; /* Remove default border */
-  border-radius: 8px; /* Rounded corners */
-  cursor: pointer; /* Pointer cursor on hover */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
-  transition: all 0.3s ease-in-out; /* Smooth transitions */
-}
-
-/* Hover effect for the button */
-#play:hover {
-  background-color: #1e8a00; /* Darker green on hover */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhance shadow on hover */
-  transform: scale(1.05); /* Slightly enlarge the button */
-}
-
-/* Active effect for the button */
-#play:active {
-  background-color: #166600; /* Even darker green when clicked */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Reduce shadow on click */
-  transform: scale(0.98); /* Slightly shrink the button */
-}
-
-/* Disabled state for the button */
-#play.disabled {
-  background-color: #ddd; /* Gray background */
-  color: #999; /* Gray text */
-  cursor: not-allowed; /* Not-allowed cursor */
-  box-shadow: none; /* Remove shadow */
-}
-
-/* Make the game responsive */
-@media (max-width: 768px) {
-  #game-board {
-    grid-template-columns: repeat(2, 1fr); /* 2 columns for smaller screens */
-    gap: 10px; /* Reduce spacing */
-  }
-
-  #active-clue {
-    width: 100%; /* Full width on smaller screens */
-    font-size: 1.2rem; /* Adjust font size */
-  }
-
-  #play {
-    font-size: 1rem; /* Adjust button size */
-    padding: 10px 20px; /* Adjust padding */
-  }
-
-  body h1 {
-    font-size: 2rem; /* Adjust title size */
-  }
-}
-
-/* Add fade-in animation to the game board */
-#game-board {
-  animation: fadeIn 1s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Animated gradient background */
-body {
-  background: linear-gradient(135deg, #74119c, #115ff4);
-  background-size: 400% 400%;
-  animation: gradientAnimation 10s ease infinite;
-}
-
-@keyframes gradientAnimation {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Add hover effect to the title */
-body h1:hover {
-  color: #28a200; /* Change text color */
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), 0 0 15px rgba(40, 162, 0, 0.8); /* Enhance glow */
-  transform: scale(1.05); /* Slightly enlarge */
-  transition: all 0.3s ease-in-out;
-}
-
-Style the spinner
-#spinner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-  z-index: 1000;
-}
-
-#spinner i {
+/* Title */
+h1 {
   font-size: 3rem;
-  color: #ffffff;
-  animation: spin 1s linear infinite;
+  margin: 20px 0;
+  color: #ffd700;
+  text-shadow: 2px 2px 6px #000;
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Play button */
+#play {
+  background: #ffd700;
+  color: #001f5b;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background 0.3s;
+}
+#play:hover {
+  background: #fff176;
 }
 
-/* Style the footer */
-footer {
-  margin-top: 20px;
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
+/* Scoreboard */
+#scoreboard {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+#scoreboard div {
+  background: #00338d;
+  border: 2px solid #ffd700;
+  border-radius: 8px;
+  padding: 10px 20px;
+  box-shadow: 0 0 10px #000;
+}
+
+/* Game board */
+table {
+  margin: 0 auto;
+  border-collapse: collapse;
+  background: #00338d;
+  border: 4px solid #ffd700;
+  box-shadow: 0 0 15px #000;
+}
+
+th, td {
+  border: 2px solid #ffd700;
+  padding: 20px;
+  width: 150px;
+  height: 40px;
   text-align: center;
+  font-weight: bold;
+  color: #ffd700;
+  font-size: 1.4rem;
 }
 
-footer a {
-  color: #28a200;
-  text-decoration: none;
+th {
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  background: #002766;
 }
 
-footer a:hover {
-  text-decoration: underline;
+td.clue {
+  cursor: pointer;
+  transition: background 0.3s;
+}
+td.clue:hover {
+  background: #002766;
+}
+td.viewed {
+  background: #111;
+  color: #444;
+  cursor: not-allowed;
 }
 
-/* Add focus styles for accessibility */
-#play:focus,
-.category:focus,
-.clue:focus {
-  outline: 3px solid #28a200; /* Green outline */
-  outline-offset: 2px;
+/* Modal for active clue */
+.modal {
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.9);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-#active-clue { opacity: 1; transition: opacity 200ms ease; }
-#active-clue.is-fading { opacity: 0; }
+.modal.disabled { display:none; }
+
+.modal-content {
+  background: #001f5b;
+  border: 6px solid #ffd700;
+  border-radius: 12px;
+  padding: 40px 50px;
+  color: #ffd700;
+  font-size: 2rem;
+  text-align: center;
+  max-width: 80%;
+  box-shadow: 0 0 25px #000;
+  animation: zoomIn 0.3s ease-in-out;
+}
+
+/* Close button inside modal */
+#close-clue {
+  margin-top: 20px;
+  background:#ffd700;
+  color:#001f5b;
+  font-weight:bold;
+  font-size: 1rem;
+  padding:10px 18px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  transition: background 0.3s;
+}
+#close-clue:hover { background:#fff176; }
+
+/* Answer section */
+#answer-section {
+  margin-top: 20px;
+}
+#player-answer {
+  padding: 10px;
+  font-size: 1.2rem;
+  border-radius: 6px;
+  border: 2px solid #ffd700;
+  width: 250px;
+}
+#submit-answer {
+  margin-left: 10px;
+  background:#ffd700;
+  color:#001f5b;
+  font-weight:bold;
+  padding:10px 18px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+#submit-answer:hover { background:#fff176; }
+
+/* Animations */
+@keyframes fadeIn {
+  from {opacity:0;} to {opacity:1;}
+}
+@keyframes zoomIn {
+  from {transform:scale(0.7);} to {transform:scale(1);}
+}
