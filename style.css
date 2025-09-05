@@ -162,3 +162,26 @@ td.viewed {
 @keyframes zoomIn {
   from {transform:scale(0.7);} to {transform:scale(1);}
 }
+
+#loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; /* full screen height */
+}
+
+.spinner {
+  border: 8px solid #f3f3f3;  /* light grey */
+  border-top: 8px solid #3498db; /* blue */
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

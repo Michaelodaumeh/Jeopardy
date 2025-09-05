@@ -8,21 +8,32 @@
 <body>
   <h1>Jeopardy!</h1>
 
+  <!-- Scores -->
   <div id="scoreboard">
     <div class="player-score" id="player1-score">Player 1: $0</div>
     <div class="player-score" id="player2-score">Player 2: $0</div>
   </div>
 
+  <!-- Start/Restart Button -->
   <button id="play">Start Game!</button>
 
-  <section>
-    <table>
-      <thead>
-        <tr id="categories"></tr>
-      </thead>
-      <tbody id="clues"></tbody>
-    </table>
-  </section>
+  <!-- Loading Spinner -->
+  <div id="loading-spinner" style="display:none;">
+    <div class="spinner"></div>
+    <p>Loading game...</p>
+  </div>
+
+  <!-- Game Container (hidden until data loads) -->
+  <div id="game-container" style="display:none;">
+    <section>
+      <table>
+        <thead>
+          <tr id="categories"></tr>
+        </thead>
+        <tbody id="clues"></tbody>
+      </table>
+    </section>
+  </div>
 
   <!-- Modal for clue -->
   <div id="clue-modal" class="modal disabled">
@@ -33,6 +44,7 @@
     </div>
   </div>
 
+  <!-- Scripts -->
   <script src="https://unpkg.com/jquery"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script src="https://unpkg.com/lodash"></script>
