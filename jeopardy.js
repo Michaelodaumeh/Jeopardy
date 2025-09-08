@@ -1,11 +1,13 @@
 const API_URL = "https://rithm-jeopardy.herokuapp.com/api/";
 const NUMBER_OF_CATEGORIES = 6;
 const NUMBER_OF_CLUES_PER_CATEGORY = 5;
+const ANSWER_TIMEOUT = 30000; // 30 seconds
 
 let categories = [];
 let activeClue = null;
 let currentPlayer = 1;
 let scores = {1: 0, 2: 0};
+let answerTimer = null;
 
 // DOM elements
 const playButton = document.getElementById("play");
@@ -15,9 +17,89 @@ const playerAnswer = document.getElementById("player-answer");
 const submitAnswer = document.getElementById("submit-answer");
 const spinner = document.getElementById("loading-spinner");
 const gameContainer = document.getElementById("game-container");
+const timerDisplay = document.getElementById("timer-display");
 
 playButton.addEventListener("click", startGame);
 submitAnswer.addEventListener("click", submitPlayerAnswer);
+
+// ============================
+// Sound Effects
+// ============================
+function playSound(type) {
+  try {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    switch(type) {
+      case 'correct':
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+        break;
+      case 'incorrect':
+        oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(150, audioContext.currentTime + 0.2);
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.4);
+        break;
+      case 'timeout':
+        oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+        break;
+    }
+  } catch (error) {
+    // Sound failed, continue without sound
+    console.log('Sound not available');
+  }
+}
+
+// ============================
+// Timer Functions
+// ============================
+function startAnswerTimer() {
+  let timeLeft = ANSWER_TIMEOUT / 1000;
+  
+  if (timerDisplay) {
+    timerDisplay.style.display = 'block';
+    timerDisplay.textContent = timeLeft;
+  }
+  
+  answerTimer = setInterval(() => {
+    timeLeft--;
+    if (timerDisplay) {
+      timerDisplay.textContent = timeLeft;
+      timerDisplay.className = timeLeft <= 5 ? 'timer-warning' : 'timer-normal';
+    }
+    
+    if (timeLeft <= 0) {
+      clearAnswerTimer();
+      playSound('timeout');
+      submitPlayerAnswer(); // Auto-submit empty answer
+    }
+  }, 1000);
+}
+
+function clearAnswerTimer() {
+  if (answerTimer) {
+    clearInterval(answerTimer);
+    answerTimer = null;
+  }
+  if (timerDisplay) {
+    timerDisplay.style.display = 'none';
+  }
+}
 
 // ============================
 // Start or Restart Game
@@ -136,7 +218,7 @@ function fillTable() {
       const td = document.createElement("td");
       td.classList.add("clue");
       td.id = `cat-${cat.id}-clue-${clue.id}`;
-      td.textContent = clue.value;
+      td.textContent = `$${clue.value.toLocaleString()}`;
       td.addEventListener("click", () => showClueModal(clue, td));
       tr.appendChild(td);
     });
@@ -154,22 +236,42 @@ function showClueModal(clue, td) {
   activeClue = clue;
   clueModal.classList.remove("disabled");
 
-  clueText.innerHTML = `<b>Question:</b> ${clue.question}<br><small>Player ${currentPlayer}'s turn</small>`;
+  clueText.innerHTML = `
+    <div class="question-header">Question:</div>
+    <div class="question-text">${clue.question}</div>
+    <small>Player ${currentPlayer}'s turn</small>
+  `;
   playerAnswer.value = "";
   playerAnswer.focus();
+  
+  // Show submit button and input field
+  submitAnswer.style.display = "inline-block";
+  playerAnswer.style.display = "block";
+  
+  // Start answer timer
+  startAnswerTimer();
 }
 
 function submitPlayerAnswer() {
   const answer = playerAnswer.value.trim().toLowerCase();
   const correctAnswer = activeClue.answer.trim().toLowerCase();
 
+  // Hide submit button and input field
+  submitAnswer.style.display = "none";
+  playerAnswer.style.display = "none";
+
+  // Clear timer
+  clearAnswerTimer();
+
   let resultText = "";
   if (answer === correctAnswer) {
     scores[currentPlayer] += activeClue.value;
     resultText = `<span style="color:#28a200; font-weight:bold;">Correct!</span>`;
+    playSound('correct');
   } else {
     scores[currentPlayer] -= activeClue.value;
     resultText = `<span style="color:red; font-weight:bold;">Incorrect!</span><br>Correct Answer: ${activeClue.answer}`;
+    playSound('incorrect');
   }
 
   updateScores();
@@ -199,9 +301,44 @@ function checkGameOver() {
   const gameOver = categories.every(c => c.clues.length === 0);
   if (gameOver) {
     clueModal.classList.remove("disabled");
-    clueText.innerHTML = `<b>🎉 Game Over!</b><br>
-      Player 1: $${scores[1]}<br>
-      Player 2: $${scores[2]}<br>
-      Click Restart Game to play again.`;
+    
+    // Determine winner
+    const winner = scores[1] > scores[2] ? 1 : 
+                   scores[2] > scores[1] ? 2 : null;
+    
+    // Hide submit button and input
+    submitAnswer.style.display = "none";
+    playerAnswer.style.display = "none";
+    
+    // Show game over with winner announcement
+    clueText.innerHTML = `
+      <div class="game-over">
+        <h2>🎉 Game Over!</h2>
+        <div class="final-scores">
+          <div class="final-score ${winner === 1 ? 'winner' : ''}">
+            Player 1: $${scores[1].toLocaleString()}
+          </div>
+          <div class="final-score ${winner === 2 ? 'winner' : ''}">
+            Player 2: $${scores[2].toLocaleString()}
+          </div>
+        </div>
+        ${winner ? `<div class="winner-announcement">Player ${winner} Wins!</div>` : `<div class="winner-announcement">It's a Tie!</div>`}
+      </div>
+    `;
+    
+    // Show restart button after 2 seconds
+    setTimeout(() => {
+      clueText.innerHTML += `
+        <div class="restart-section">
+          <button id="restart-game-btn" class="restart-button">Play Again!</button>
+        </div>
+      `;
+      
+      // Add event listener to restart button
+      document.getElementById('restart-game-btn').addEventListener('click', () => {
+        clueModal.classList.add("disabled");
+        startGame();
+      });
+    }, 2000);
   }
 }
